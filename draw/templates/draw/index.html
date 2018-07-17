@@ -17,19 +17,141 @@
 <body>
     <!-- You may change the dimensions of this canvas -->
     <canvas id="myCanvas" width="750px" height="750px"></canvas>
+
 </body>
 <script>
+//   window.onload = function() {
+//     console.log("function working")
+     var canvas = document.getElementById('myCanvas');
+     paper.setup(canvas);
+// 		var smoothPath = new paper.Path();
+//     smoothPath.strokeColor = 'black';
+//     var roughPath = new paper.Path();
+//     roughPath.strokeColor = 'red'
+//     var points = []
+     var tool = new paper.Tool();
+//     tool.minDistance = 40
 
-    // setting up the canvas and one paper tool
-    var canvas = document.getElementById('myCanvas');
-    paper.setup(canvas);
-    var tool = new paper.Tool();
+//     function meanOfPoints(points) {
+//         var x_sum = 0;
+//         var y_sum = 0;
+//         // TODO: Do something with each point to return the mean Point()
+//         for (var i = 0; i < points.length; i++) {
+//         }
+//         // TODO: return the correct Point() here
+//     }
+
+//     tool.onMouseMove() = function(event) {
+//       // Add the new point to our array
+//       points.push(event.point);
+//       // TODO: If the number of points is greater than a window size,
+//       // Add the correct point to the smoothPath
+//       // Then remove the oldest point with:
+//       //    points.shift()
+
+//       // Always update the roughPath 
+//       roughPath.lineTo(event.point)
+//     }
+//     // setting up the canvas and one paper tool
+ 
+   
+
+// 			}
+
 
     // getting the URL (you may want to use for Exercise 3)
     var url = window.location.href;
+    var myPath = new paper.Path();
+    var myPath2 = new paper.Path();
+    var colors = ["blue", "green", "purple", "yellow", "orange"];
+    var i = 0;
+    var socket = new WebSocket(
+         'ws://p4-sarnikdro-sarkarchandro780585.codeanyapp.com:8765/');
+    var loggedon = {};
+    var colorarray = {};
 
-    // var socket = new WebSocket(
-    //     'ws://your url here:8765/');
+    socket.onmessage = function(receiveMessage) {
+        var newPath = JSON.parse(receiveMessage.data);
+        var point = new paper.Point(newPath.x, newPath.y);
+        var id = newPath.id;
+        var color = newPath.color;
+        //var color = "#"+((1<<24)*Math.random()|0).toString(16);
+        colorarray[id] = color; 
+        if(!(id in loggedon)){
+           var path = new paper.Path();
+           //path.strokeColor = colors[i];
+           path.strokeColor = color; 
+           loggedon[id] = path;
+           //i += 1;
+        } 
+        if(url.indexOf('large') !== -1){
+          loggedon[id].lineTo(point);
+        } 
+        //loggedon[id].lineTo(point);
+        console.log(loggedon[newPath.id]);
+        console.log(receiveMessage.data);
+        console.log(loggedon);
+        console.log(url)
+    };
+  
+     socket.onopen = function(){
+       var ID =  '_' + Math.random().toString(36).substr(2, 9);
+       var color = "#"+((1<<24)*Math.random()|0).toString(16);
+       myPath.strokeColor = color;
+       myPath2.strokeColor = "green";
+       loggedon[ID] = myPath;
+       tool.onMouseMove = function(event) {
+         var myObj = { "x":event.point.x, "y":event.point.y, "id":ID, "color": color};
+         var msg = JSON.stringify(myObj);
+         socket.send(msg);
+         if(url.indexOf('small') !== -1){
+            var point = new paper.Point(event.point.x, event.point.y);
+            myPath.lineTo(point);
+         } 
+         if(window.DeviceOrientationEvent){
+            window.addEventListener('deviceorientation', function(event){
+              if(event.gamma > 45){
+                color = "#"+((1<<24)*Math.random()|0).toString(16);
+                myPath.strokeColor = color;
+              }
+            }, false);
+         }
+         if(window.DeviceMotionEvent){
+            window.addEventListener('devicemotion', function(event){
+              if(event.acceleration.x > 15 || event.acceleration.y > 15 || event.acceleration.z > 15){
+                paper.project.activeLayer.removeChildren();
+                myPath = new Paper.path();
+                color = "#"+((1<<24)*Math.random()|0).toString(16);
+                myPath.strokeColor = color;
+              }
+            }, false);
+         }         
+       };
+       //console.log(ID);
+       
+       
+     };
+
+  /*
+    window.addEventListener('devicemotion', function(event) {
+      const context = canvas.getContext('2d');
+
+      context.clearRect(0, 0, canvas.width, canvas.height);
+    });
+*/
+  
+
+
+  
+  
+    function testing(event){
+      socket.send(event.key);
+      
+    };
+
+    socket.onclose = function(e) {
+      console.error('Chat closed');
+     };
 
 
 </script>
