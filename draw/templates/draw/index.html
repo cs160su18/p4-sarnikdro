@@ -31,7 +31,6 @@
 //     var points = []
      var tool = new paper.Tool();
 //     tool.minDistance = 40
-
 //     function meanOfPoints(points) {
 //         var x_sum = 0;
 //         var y_sum = 0;
@@ -40,7 +39,6 @@
 //         }
 //         // TODO: return the correct Point() here
 //     }
-
 //     tool.onMouseMove() = function(event) {
 //       // Add the new point to our array
 //       points.push(event.point);
@@ -48,17 +46,13 @@
 //       // Add the correct point to the smoothPath
 //       // Then remove the oldest point with:
 //       //    points.shift()
-
 //       // Always update the roughPath 
 //       roughPath.lineTo(event.point)
 //     }
 //     // setting up the canvas and one paper tool
  
    
-
 // 			}
-
-
     // getting the URL (you may want to use for Exercise 3)
     var url = window.location.href;
     var myPath = new paper.Path();
@@ -69,7 +63,6 @@
          'ws://p4-sarnikdro-sarkarchandro780585.codeanyapp.com:8765/');
     var loggedon = {};
     var colorarray = {};
-
     socket.onmessage = function(receiveMessage) {
         var newPath = JSON.parse(receiveMessage.data);
         var point = new paper.Point(newPath.x, newPath.y);
@@ -131,28 +124,21 @@
        
        
      };
-
   /*
     window.addEventListener('devicemotion', function(event) {
       const context = canvas.getContext('2d');
-
       context.clearRect(0, 0, canvas.width, canvas.height);
     });
 */
   
-
-
   
   
     function testing(event){
       socket.send(event.key);
       
     };
-
     socket.onclose = function(e) {
       console.error('Chat closed');
      };
-
-
 </script>
 </html>
